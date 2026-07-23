@@ -1,0 +1,10 @@
+{
+  "appId": "com.maximstark.paintbynumbers",
+  "appName": "Paint by Numbers",
+  "webDir": "www",
+  "backgroundColor": "#f5e9f7ff",
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#f5e9f7ff"
+  }
+}

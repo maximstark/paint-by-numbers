@@ -8,7 +8,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <title>Paint by Numbers</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
   /* ---- Paint by Numbers · a tiny open-source painting game for little artists ---- */
   :root{
@@ -587,6 +588,11 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) saveP
 resize();
 buildGallery();
 requestAnimationFrame(draw);
+
+/* offline support (ignored under file://; works on https / installed app) */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
 </script>
 </body>
 </html>

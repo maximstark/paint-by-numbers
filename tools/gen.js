@@ -142,15 +142,28 @@ P.frog = {1:['#9fd67e','Green'],2:['#cdeaa8','Pale'],3:['#ffffff','White'],4:['#
   disc(g,9,33,2.8,1); disc(g,26,33,2.8,1);           // webbed feet
   outline(g,7); OUT.frog = g; }
 
+/* ================= PENGUIN ================= */
+P.penguin = {1:['#97aee0','Blue'],2:['#fff4e9','White'],3:['#ffb15a','Orange'],6:['#f4a9c0','Blush'],7:['#6e5a79','Plum']};
+{ const g = make();
+  ell(g,6.5,21,2.4,6.5,1); ell(g,28.5,21,2.4,6.5,1);  // flippers
+  ell(g,CX,20,9.5,13,1);                              // round body + head
+  ell(g,CX,24,6,8.5,2);                               // white belly
+  rect(g,16,5,19,6,1);                                // little head tuft
+  rect(g,13,12,14,14,7); rect(g,21,12,22,14,7);       // eyes
+  rect(g,16,15,19,16,3); rect(g,17,17,18,17,3);       // beak
+  disc(g,11,16,1.8,6); disc(g,24,16,1.8,6);           // blush
+  ell(g,13,34,3,1.7,3); ell(g,22,34,3,1.7,3);         // orange webbed feet
+  outline(g,7); OUT.penguin = g; }
+
 // ---- emit characters.js ----
-const order = ['kitty','puppy','bunny','bear','chick','fox','frog'];
-const names = {kitty:'Kitty',puppy:'Puppy',bunny:'Bunny',bear:'Bear',chick:'Chick',fox:'Fox',frog:'Frog'};
+const order = ['kitty','puppy','bunny','bear','chick','fox','frog','penguin'];
+const names = {kitty:'Kitty',puppy:'Puppy',bunny:'Bunny',bear:'Bear',chick:'Chick',fox:'Fox',frog:'Frog',penguin:'Penguin'};
 const chars = order.map(id => {
   const pal = {}; for(const k of Object.keys(P[id])) pal[k] = {hex:P[id][k][0], name:P[id][k][1]};
   return {id, name:names[id], bg:'#eae2f6', palette:pal, grid:OUT[id]};
 });
 const js = 'window.CHARACTERS = ' + JSON.stringify(chars) + ';\n';
-fs.writeFileSync(__dirname + '/characters.js', js);
+fs.writeFileSync(require('path').join(__dirname, '..', 'characters.js'), js);  // repo root
 
 // ---- ASCII preview ----
 const glyph = {0:'.',1:'1',2:'2',3:'3',4:'4',5:'5',6:'6',7:'@'};

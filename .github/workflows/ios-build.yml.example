@@ -1,0 +1,55 @@
+# Cloud iOS build on a free GitHub macOS runner — no local Xcode needed.
+# To activate: rename to `ios-build.yml`, add the secrets below, and push.
+# This is a STARTER — the signing/upload step needs your Apple credentials.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   APP_STORE_CONNECT_KEY_ID        - App Store Connect API key id
+#   APP_STORE_CONNECT_ISSUER_ID     - issuer id for that key
+#   APP_STORE_CONNECT_KEY_P8        - contents of the .p8 API key file
+#   IOS_DIST_CERT_P12_BASE64        - base64 of your distribution cert (.p12)
+#   IOS_DIST_CERT_PASSWORD          - password for that .p12
+#   IOS_PROVISIONING_PROFILE_BASE64 - base64 of your .mobileprovision
+#
+# Docs: https://capacitorjs.com/docs/ios  +  https://docs.fastlane.tools/
+
+name: iOS build
+
+on:
+  workflow_dispatch:        # run manually from the Actions tab
+
+jobs:
+  build:
+    runs-on: macos-14       # bump to the newest macOS image Apple currently requires
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps and create the iOS project
+        run: |
+          npm ci || npm install
+          npm run ios:add
+          npm run ios:assets
+
+      # --- TODO: signing ---
+      # Import the distribution certificate + provisioning profile from the secrets
+      # above (e.g. with apple-actions/import-codesign-certs), then build & upload.
+      #
+      # - name: Import signing assets
+      #   uses: apple-actions/import-codesign-certs@v3
+      #   with:
+      #     p12-file-base64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+      #     p12-password: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+      #
+      # - name: Archive & upload to TestFlight
+      #   run: |
+      #     xcodebuild -workspace ios/App/App.xcworkspace -scheme App \
+      #       -configuration Release -archivePath build/App.xcarchive archive
+      #     xcodebuild -exportArchive -archivePath build/App.xcarchive \
+      #       -exportPath build -exportOptionsPlist ios/ExportOptions.plist
+      #     # then upload build/*.ipa with `xcrun altool` or Fastlane `pilot`
+
+      - name: Where we are
+        run: echo "Native project built. Add the signing + upload steps above to finish."

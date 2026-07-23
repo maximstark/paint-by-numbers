@@ -1,2 +1,8 @@
 Thumbs.db
 .DS_Store
+
+# generated / platform (rebuilt on the Mac)
+node_modules/
+www/
+ios/
+android/

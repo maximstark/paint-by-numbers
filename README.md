@@ -2,7 +2,7 @@
 
 A tiny, adorable **paint-by-numbers game for little artists**, made for playing on a
 tablet in the browser. Pick a cute pixel character, tap a color, and fill in the
-matching numbers to reveal it. Comes with **seven candy-pastel characters** 🐱🐶🐰🐻🐥🦊🐸.
+matching numbers to reveal it. Comes with **eight candy-pastel characters** 🐱🐶🐰🐻🐥🦊🐸🐧.
 
 Built as a gift for my daughter after one too many junky app-store games — so it's
 **fully open source**, ad-free, tracker-free, and works completely offline.
@@ -15,7 +15,7 @@ Built as a gift for my daughter after one too many junky app-store games — so 
 
 ## How to play
 
-1. **Pick a picture** from the gallery (kitty, puppy, bunny, bear, chick, fox, frog).
+1. **Pick a picture** from the gallery (kitty, puppy, bunny, bear, chick, fox, frog, penguin).
 2. Tap a **color** at the bottom. The squares that match it gently glow.
 3. **Tap or drag** across those squares to paint them.
 4. Fill every number to finish the picture — then enjoy the confetti! 🎉
@@ -44,10 +44,14 @@ No build step, no dependencies — just `index.html` plus a `characters.js` data
   # then open http://<your-computer-ip>:8000 on the tablet
   ```
 
-### Add it to a tablet’s home screen
-Open the live URL (or your local server) in the tablet browser, then use
-**“Add to Home Screen.”** It launches full-screen like a real app, and works with no
-internet once loaded.
+### Install it as an app (PWA)
+It's an installable Progressive Web App with an offline service worker and a real app
+icon. On the tablet, open the live URL and choose **“Add to Home Screen.”** It launches
+full-screen like a native app and works with no internet after the first load.
+
+### Publishing to the Apple App Store
+Everything needed to wrap this as a native iOS app (Capacitor config, an icon generator,
+a privacy policy, and a step-by-step guide) is prepared — see **[MOBILE.md](MOBILE.md)**.
 
 ## Add your own character
 
