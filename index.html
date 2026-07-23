@@ -52,7 +52,7 @@
   }
   .iconbtn:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(110,90,121,.18); }
 
-  /* ---------- progress hearts ---------- */
+  /* ---------- progress bar ---------- */
   #progress{ display:flex; align-items:center; gap:6px; padding:0 16px 4px; flex:0 0 auto; height:18px; }
   #progressBar{ flex:1 1 auto; height:12px; border-radius:99px; background:#ffffffaa; overflow:hidden; box-shadow:inset 0 1px 2px rgba(110,90,121,.15); }
   #progressFill{ height:100%; width:0%; border-radius:99px; background:linear-gradient(90deg,#ffd36e,#f18fbf,#a8e6cf); transition:width .25s ease; }
@@ -63,56 +63,75 @@
 
   /* ---------- palette ---------- */
   #palette{
-    flex:0 0 auto; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
-    padding:10px 12px calc(env(safe-area-inset-bottom) + 12px);
+    flex:0 0 auto; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    padding:8px 12px calc(env(safe-area-inset-bottom) + 10px);
   }
   .swatch{
     position:relative; border:none; cursor:pointer;
-    width:56px; height:64px; border-radius:18px; padding:0;
+    width:52px; height:60px; border-radius:16px; padding:0;
     background:transparent; display:flex; align-items:center; justify-content:center;
     transition:transform .12s ease;
   }
   .swatch .chip{
-    width:52px; height:52px; border-radius:16px;
+    width:48px; height:48px; border-radius:15px;
     box-shadow:0 3px 0 rgba(110,90,121,.18), inset 0 0 0 3px #ffffffcc;
     display:flex; align-items:center; justify-content:center;
-    font-weight:800; font-size:22px;
+    font-weight:800; font-size:20px;
   }
   .swatch.sel{ transform:translateY(-8px) scale(1.06); }
   .swatch.sel .chip{ box-shadow:0 0 0 4px var(--ring), 0 5px 0 rgba(110,90,121,.18), inset 0 0 0 3px #ffffffcc; }
   .swatch .done{
-    position:absolute; top:-4px; right:-2px; width:26px; height:26px; border-radius:50%;
-    background:#7cd6a6; color:#fff; font-size:16px; display:none; align-items:center; justify-content:center;
+    position:absolute; top:-4px; right:-2px; width:24px; height:24px; border-radius:50%;
+    background:#7cd6a6; color:#fff; font-size:15px; display:none; align-items:center; justify-content:center;
     box-shadow:0 2px 4px rgba(0,0,0,.15);
   }
   .swatch.complete .done{ display:flex; }
   .swatch.complete .chip{ opacity:.45; }
 
-  /* ---------- overlays (welcome / confirm / win) ---------- */
+  /* ---------- overlays ---------- */
   .overlay{
     position:fixed; inset:0; display:none; align-items:center; justify-content:center;
     background:rgba(78,63,90,.34); backdrop-filter:blur(3px); z-index:20; padding:20px;
   }
   .overlay.show{ display:flex; }
   .panel{
-    background:var(--card); border-radius:28px; padding:26px 24px 30px; text-align:center;
-    max-width:440px; width:100%; box-shadow:0 18px 50px rgba(78,63,90,.35);
+    background:var(--card); border-radius:28px; padding:24px 22px 26px; text-align:center;
+    max-width:520px; width:100%; max-height:92vh; overflow-y:auto;
+    box-shadow:0 18px 50px rgba(78,63,90,.35);
     animation:pop .32s cubic-bezier(.2,1.3,.4,1) both;
   }
-  @keyframes pop{ from{ transform:scale(.8); opacity:0 } to{ transform:scale(1); opacity:1 } }
-  .panel h2{ margin:.2em 0 .1em; font-size:clamp(24px,6vw,34px); font-weight:800; }
+  @keyframes pop{ from{ transform:scale(.85); opacity:0 } to{ transform:scale(1); opacity:1 } }
+  .panel h2{ margin:.15em 0 .05em; font-size:clamp(24px,6vw,34px); font-weight:800; }
   .panel p{ margin:.2em 0 1em; opacity:.75; font-size:16px; }
+  .subtitle{ opacity:.7; font-weight:700; font-size:15px; margin:0 0 14px; }
   .bigbtn{
     border:none; cursor:pointer; font-family:inherit; font-weight:800;
-    font-size:22px; color:#fff; padding:16px 30px; border-radius:20px;
+    font-size:21px; color:#fff; padding:15px 28px; border-radius:20px;
     background:linear-gradient(180deg,#ff9ecb,#f36ea8);
     box-shadow:0 5px 0 #d94e8b; margin:6px;
   }
   .bigbtn:active{ transform:translateY(3px); box-shadow:0 2px 0 #d94e8b; }
   .bigbtn.ghost{ background:linear-gradient(180deg,#eae2f6,#d9cdec); color:var(--ink); box-shadow:0 5px 0 #b9a9cf; }
   .bigbtn.ghost:active{ box-shadow:0 2px 0 #b9a9cf; }
-  #previewCanvas{ image-rendering:pixelated; border-radius:16px; margin:6px auto 14px; display:block; box-shadow:0 6px 16px rgba(78,63,90,.2); }
-  .subtitle{ opacity:.7; font-weight:600; font-size:15px; margin-top:-2px; }
+
+  /* ---------- character gallery ---------- */
+  #galleryGrid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+    gap:12px; margin-top:6px;
+  }
+  .pick{
+    position:relative; border:none; cursor:pointer; background:#f6f0fb;
+    border-radius:18px; padding:8px 6px 6px; display:flex; flex-direction:column; align-items:center; gap:4px;
+    box-shadow:0 3px 0 rgba(110,90,121,.14); transition:transform .12s ease;
+  }
+  .pick:active{ transform:translateY(2px); }
+  .pick canvas{ image-rendering:pixelated; width:80px; height:80px; border-radius:12px; background:#eae2f6; }
+  .pick .plabel{ font-weight:800; font-size:14px; }
+  .pick .star{
+    position:absolute; top:2px; right:4px; font-size:18px; display:none;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));
+  }
+  .pick.done .star{ display:block; }
 
   /* confetti sits above everything but ignores taps */
   #confetti{ position:fixed; inset:0; pointer-events:none; z-index:30; }
@@ -121,8 +140,9 @@
 <body>
 <div id="app">
   <header>
-    <h1><span>🎨</span><span id="titleText">Paint by Numbers</span></h1>
+    <h1><span>🎨</span><span>Paint by Numbers</span></h1>
     <span class="spacer"></span>
+    <button class="iconbtn" id="homeBtn" title="Pick a picture">🏠</button>
     <button class="iconbtn" id="soundBtn" title="Sound">🔊</button>
     <button class="iconbtn" id="resetBtn" title="Start over">↺</button>
   </header>
@@ -137,14 +157,12 @@
   <div id="palette"></div>
 </div>
 
-<!-- Welcome -->
-<div class="overlay show" id="welcome">
+<!-- Character picker (also the start screen) -->
+<div class="overlay show" id="gallery">
   <div class="panel">
     <h2>Paint by Numbers</h2>
-    <div class="subtitle">for little artists 🐾</div>
-    <canvas id="previewCanvas" width="180" height="180"></canvas>
-    <p>Tap a color, then paint the matching numbers!</p>
-    <button class="bigbtn" id="playBtn">▶ Play</button>
+    <div class="subtitle">for little artists 🐾 — pick a picture!</div>
+    <div id="galleryGrid"></div>
   </div>
 </div>
 
@@ -162,74 +180,31 @@
 <div class="overlay" id="win">
   <div class="panel">
     <h2>You did it! 🎉</h2>
-    <p>Your kitty looks purr-fect!</p>
+    <p id="winMsg">It looks wonderful!</p>
     <button class="bigbtn" id="againBtn">Paint Again</button>
+    <button class="bigbtn ghost" id="pickBtn">Pick Another 🖼️</button>
   </div>
 </div>
 
 <canvas id="confetti"></canvas>
 
+<script src="characters.js"></script>
 <script>
 /* ============================================================================
-   Paint by Numbers  —  open-source, single file, no dependencies.
-   Add a new character by pushing another entry into CHARACTERS below:
-     - palette: number -> {hex, name}
-     - grid: 2D array of color numbers (0 = background, not painted)
+   Paint by Numbers — open-source, offline, no dependencies.
+   Character art lives in characters.js (window.CHARACTERS), authored with the
+   friendly drawing primitives in tools/gen.js. Each character:
+     { id, name, bg, palette:{ number -> {hex,name} }, grid:[[numbers]] }
+   grid value 0 = background (not painted). Run `node tools/gen.js` to rebuild.
    ========================================================================== */
+const CHARACTERS = window.CHARACTERS || [];
+const SAVE_PREFIX = 'pbn36.';               // bump if the grids ever change shape
 
-/* ----- the adorable kitty (18 x 18, big chunky pixels) ------------------- */
-const KITTY = {
-  id: 'kitty',
-  name: 'Kitty',
-  bg: '#eae2f6',
-  palette: {
-    1: { hex:'#f5a9c7', name:'Pink'   },
-    2: { hex:'#fcd5e5', name:'Blush'  },
-    3: { hex:'#fff4e9', name:'Cream'  },
-    4: { hex:'#a8e6cf', name:'Mint'   },
-    5: { hex:'#ffe29a', name:'Butter' },
-    6: { hex:'#ee7ba6', name:'Rose'   },
-    7: { hex:'#6e5a79', name:'Plum'   },
-  },
-  grid: [
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,7,7,0,0,0,0,0,0,7,7,0,0,0,0],
-    [0,0,0,7,1,1,7,0,4,0,0,7,1,1,7,0,0,0],
-    [0,0,0,7,1,2,7,4,5,4,0,7,2,1,7,0,0,0],
-    [0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,7,0,0],
-    [0,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,0],
-    [0,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,0],
-    [0,7,1,1,1,7,1,1,1,1,1,1,7,1,1,1,7,0],
-    [0,7,1,6,1,1,1,3,3,3,3,1,1,1,6,1,7,0],
-    [0,7,1,1,1,1,3,3,6,6,3,3,1,1,1,1,7,0],
-    [0,7,1,1,1,1,1,3,3,3,3,1,1,1,1,1,7,0],
-    [0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,7,0,0],
-    [0,0,0,7,4,4,4,4,5,5,4,4,4,4,7,0,0,0],
-    [0,0,0,7,1,1,1,3,3,3,3,1,1,1,7,1,7,0],
-    [0,0,7,1,1,3,3,3,3,3,3,1,1,1,7,1,7,0],
-    [0,0,7,1,1,3,3,3,3,3,3,1,1,1,7,1,7,0],
-    [0,0,7,3,3,7,1,1,1,1,1,7,3,3,7,7,0,0],
-    [0,0,0,7,7,7,7,7,7,7,7,7,7,7,0,0,0,0],
-  ],
-};
-
-const CHARACTERS = [KITTY];
-const CHAR = CHARACTERS[0];              // start with one character
-const ROWS = CHAR.grid.length;
-const COLS = CHAR.grid[0].length;
-
-/* ----- state ------------------------------------------------------------- */
-const filled = CHAR.grid.map(row => row.map(() => 0));   // 0 = not yet painted
-const pop    = CHAR.grid.map(row => row.map(() => 0));    // pop animation timer
-const shake  = CHAR.grid.map(row => row.map(() => 0));    // wrong-tap wiggle timer
-let selected = 0;                        // selected color number (0 = none yet)
-let paintedCount = 0;
-let paintableTotal = 0;
-let won = false;
-let soundOn = true;
-let cell = 24, ox = 0, oy = 0;           // cell size + board offset (set on resize)
-
-CHAR.grid.forEach(r => r.forEach(v => { if (v !== 0) paintableTotal++; }));
+/* ----- state (all rebuilt when a character is chosen) -------------------- */
+let CHAR=null, ROWS=0, COLS=0, filled=[], pop=[], shake=[];
+let numbers=[], swatches={};
+let selected=0, paintedCount=0, paintableTotal=0, won=false, soundOn=true;
+let cell=24, ox=0, oy=0;
 
 /* ----- elements ---------------------------------------------------------- */
 const board = document.getElementById('board');
@@ -239,36 +214,90 @@ const cctx = confetti.getContext('2d');
 const paletteEl = document.getElementById('palette');
 const progressFill = document.getElementById('progressFill');
 const progressPct = document.getElementById('progressPct');
+const galleryEl = document.getElementById('gallery');
+const galleryGrid = document.getElementById('galleryGrid');
 
 /* ----- colour helpers ---------------------------------------------------- */
 function rgb(hex){ const n=parseInt(hex.slice(1),16); return [n>>16&255,n>>8&255,n&255]; }
 function luminance(hex){ const [r,g,b]=rgb(hex); return (0.299*r+0.587*g+0.114*b)/255; }
-function textOn(hex){ return luminance(hex) > 0.6 ? '#6e5a79' : '#fff8fc'; }
+function textOn(hex){ return luminance(hex) > 0.62 ? '#6e5a79' : '#fff8fc'; }
 
-/* ----- build the palette buttons ---------------------------------------- */
-const numbers = Object.keys(CHAR.palette).map(Number).sort((a,b)=>a-b);
-const swatches = {};
-numbers.forEach(num => {
-  const info = CHAR.palette[num];
-  const btn = document.createElement('button');
-  btn.className = 'swatch';
-  btn.innerHTML =
-    `<span class="chip" style="background:${info.hex};color:${textOn(info.hex)}">${num}</span>` +
-    `<span class="done">✓</span>`;
-  btn.addEventListener('pointerdown', e => { e.preventDefault(); selectColor(num); });
-  paletteEl.appendChild(btn);
-  swatches[num] = btn;
-});
+/* ----- per-character saved progress -------------------------------------- */
+function saveKey(){ return SAVE_PREFIX + CHAR.id; }
+function saveProgress(){
+  if (!CHAR) return;
+  try { localStorage.setItem(saveKey(), JSON.stringify(filled.flat())); } catch(_){}
+}
+function loadSaved(ch){
+  try {
+    const raw = localStorage.getItem(SAVE_PREFIX + ch.id);
+    if (!raw) return null;
+    const flat = JSON.parse(raw);
+    if (!Array.isArray(flat) || flat.length !== ch.grid.length*ch.grid[0].length) return null;
+    return flat;
+  } catch(_){ return null; }
+}
+function clearSaved(){ try { localStorage.removeItem(saveKey()); } catch(_){} }
+function isComplete(ch){
+  const flat = loadSaved(ch); if (!flat) return false;
+  let need=0, have=0, i=0;
+  for (let r=0;r<ch.grid.length;r++) for (let c=0;c<ch.grid[0].length;c++,i++){
+    if (ch.grid[r][c]!==0){ need++; if (flat[i]===ch.grid[r][c]) have++; }
+  }
+  return need>0 && have>=need;
+}
 
+/* ----- loading a character ---------------------------------------------- */
+function loadCharacter(ch){
+  CHAR = ch;
+  ROWS = ch.grid.length; COLS = ch.grid[0].length;
+  filled = ch.grid.map(row => row.map(()=>0));
+  pop    = ch.grid.map(row => row.map(()=>0));
+  shake  = ch.grid.map(row => row.map(()=>0));
+  paintableTotal = 0; paintedCount = 0;
+  for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++) if (ch.grid[r][c]!==0) paintableTotal++;
+
+  // restore any saved painting (only accept correct fills)
+  const flat = loadSaved(ch);
+  if (flat){
+    let i=0;
+    for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++,i++){
+      if (ch.grid[r][c]!==0 && flat[i]===ch.grid[r][c]){ filled[r][c]=flat[i]; paintedCount++; }
+    }
+  }
+  won = paintedCount >= paintableTotal && paintableTotal>0;
+
+  buildPalette();
+  refreshSwatches();
+  selectColor(firstIncomplete());
+  resize();
+  updateProgress();
+}
+
+/* ----- palette ----------------------------------------------------------- */
+function buildPalette(){
+  paletteEl.innerHTML = '';
+  swatches = {};
+  numbers = Object.keys(CHAR.palette).map(Number).sort((a,b)=>a-b);
+  numbers.forEach(num => {
+    const info = CHAR.palette[num];
+    const btn = document.createElement('button');
+    btn.className = 'swatch';
+    btn.innerHTML =
+      `<span class="chip" style="background:${info.hex};color:${textOn(info.hex)}">${num}</span>` +
+      `<span class="done">✓</span>`;
+    btn.addEventListener('pointerdown', e => { e.preventDefault(); selectColor(num); });
+    paletteEl.appendChild(btn);
+    swatches[num] = btn;
+  });
+}
 function selectColor(num){
   selected = num;
   numbers.forEach(n => swatches[n].classList.toggle('sel', n === num));
-  blip(soundOn ? 660 : 0, 0.05, 'select');
+  blip(660, 0.05, 'select');
 }
-
-/* ----- how many cells still need each colour ---------------------------- */
 function remainingFor(num){
-  let n = 0;
+  let n=0;
   for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++)
     if (CHAR.grid[r][c]===num && filled[r][c]===0) n++;
   return n;
@@ -276,7 +305,6 @@ function remainingFor(num){
 function refreshSwatches(){
   numbers.forEach(n => swatches[n].classList.toggle('complete', remainingFor(n)===0));
 }
-/* pick the first colour that still has cells to paint */
 function firstIncomplete(){
   for (const n of numbers) if (remainingFor(n) > 0) return n;
   return numbers[0];
@@ -284,11 +312,14 @@ function firstIncomplete(){
 
 /* ----- layout / sizing --------------------------------------------------- */
 function resize(){
+  confetti.width = window.innerWidth;
+  confetti.height = window.innerHeight;
+  if (!CHAR) return;
   const stage = document.getElementById('stage');
   const rect = stage.getBoundingClientRect();
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const size = Math.floor(Math.min(rect.width, rect.height) - 4);
-  cell = Math.floor(size / Math.max(ROWS, COLS));
+  cell = Math.max(6, Math.floor(size / Math.max(ROWS, COLS)));
   const w = cell * COLS, h = cell * ROWS;
   board.style.width = w + 'px';
   board.style.height = h + 'px';
@@ -296,36 +327,29 @@ function resize(){
   board.height = Math.floor(h * dpr);
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ox = 0; oy = 0;
-
-  confetti.width = window.innerWidth;
-  confetti.height = window.innerHeight;
 }
 window.addEventListener('resize', resize);
 
 /* ----- draw the board (runs every frame) -------------------------------- */
-function roundRect(g,x,y,w,h,r){
-  g.beginPath();
-  g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
-  g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
-}
-
 function draw(t){
+  requestAnimationFrame(draw);
+  if (!CHAR){ return; }
   ctx.clearRect(0,0,board.width,board.height);
   const highlight = 0.5 + 0.5*Math.sin(t/220);   // pulse for the selected colour
+  const showNums = cell >= 12;                    // hide tiny numbers on small screens
 
   for (let r=0;r<ROWS;r++){
     for (let c=0;c<COLS;c++){
       const val = CHAR.grid[r][c];
       let x = ox + c*cell, y = oy + r*cell;
 
-      // gentle wiggle on a wrong tap
-      if (shake[r][c] > 0){
+      if (shake[r][c] > 0){                        // gentle wiggle on a wrong tap
         const k = shake[r][c]/280;
         x += Math.sin(t/28) * 3 * k;
         shake[r][c] = Math.max(0, shake[r][c] - 16);
       }
 
-      if (val === 0){ // background — soft and calm, not painted
+      if (val === 0){                              // background — calm, not painted
         ctx.fillStyle = CHAR.bg;
         ctx.fillRect(x,y,cell,cell);
         continue;
@@ -333,8 +357,13 @@ function draw(t){
 
       const isFilled = filled[r][c] !== 0;
 
-      if (isFilled && !won){
-        // painted cell
+      if (won){                                    // clean reveal — no numbers/grid
+        ctx.fillStyle = CHAR.palette[filled[r][c] || val].hex;
+        ctx.fillRect(x,y,cell,cell);
+        continue;
+      }
+
+      if (isFilled){
         let s = 1;
         if (pop[r][c] > 0){ const k = pop[r][c]/220; s = 1 + 0.18*k; pop[r][c] = Math.max(0, pop[r][c]-16); }
         ctx.save();
@@ -342,44 +371,33 @@ function draw(t){
         ctx.fillStyle = CHAR.palette[filled[r][c]].hex;
         ctx.fillRect(0,0,cell,cell);
         ctx.restore();
-      } else if (won){
-        // clean reveal — no numbers, no grid
-        ctx.fillStyle = CHAR.palette[filled[r][c] || val].hex;
-        ctx.fillRect(x,y,cell,cell);
-        continue;
       } else {
-        // empty cell — show its number on a soft canvas
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(x,y,cell,cell);
-
         const isTarget = val === selected;
-        if (isTarget){ // glow the cells that match the chosen colour
+        if (isTarget){
           ctx.fillStyle = CHAR.palette[val].hex;
           ctx.globalAlpha = 0.22 + 0.18*highlight;
           ctx.fillRect(x,y,cell,cell);
           ctx.globalAlpha = 1;
         }
-        // the number
-        ctx.fillStyle = isTarget ? CHAR.palette[val].hex : '#c8bcd6';
-        ctx.font = `${isTarget?800:600} ${Math.floor(cell*0.5)}px "Baloo 2",system-ui,sans-serif`;
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.fillText(String(val), x+cell/2, y+cell/2+1);
+        if (showNums){
+          ctx.fillStyle = isTarget ? CHAR.palette[val].hex : '#c8bcd6';
+          ctx.font = `${isTarget?800:600} ${Math.floor(cell*0.55)}px "Baloo 2",system-ui,sans-serif`;
+          ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(String(val), x+cell/2, y+cell/2+1);
+        }
       }
 
-      // soft grid lines while playing
-      if (!won){
-        ctx.strokeStyle = 'rgba(110,90,121,0.10)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x+0.5,y+0.5,cell-1,cell-1);
-      }
+      ctx.strokeStyle = 'rgba(110,90,121,0.10)';   // soft grid lines
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x+0.5,y+0.5,cell-1,cell-1);
     }
   }
-  requestAnimationFrame(draw);
 }
 
 /* ----- painting ---------------------------------------------------------- */
-let painting = false, lastShake = 0, lastRC = null;
-
+let painting=false, lastShake=0, lastRC=null;
 function cellAt(clientX, clientY){
   const rect = board.getBoundingClientRect();
   const c = Math.floor((clientX - rect.left - ox) / cell);
@@ -387,65 +405,54 @@ function cellAt(clientX, clientY){
   if (r<0||c<0||r>=ROWS||c>=COLS) return null;
   return [r,c];
 }
-
-function fillCell(r, c){
-  if (won || selected === 0) return;
+function fillCell(r,c){
+  if (won || selected===0) return;
   if (r<0||c<0||r>=ROWS||c>=COLS) return;
   const val = CHAR.grid[r][c];
-  if (val === 0 || filled[r][c] !== 0) return;   // background or already done
-
+  if (val===0 || filled[r][c]!==0) return;
   if (val === selected){
     filled[r][c] = selected;
     pop[r][c] = 220;
     paintedCount++;
     blip(520 + Math.random()*40, 0.06, 'tap');
     updateProgress();
-    if (remainingFor(selected) === 0){          // finished this colour
-      refreshSwatches();
-      sparkle();
+    if (remainingFor(selected)===0){
+      refreshSwatches(); sparkle();
       if (paintedCount < paintableTotal) selectColor(firstIncomplete());
     }
     if (paintedCount >= paintableTotal) winGame();
   } else {
-    // wrong colour — a friendly little wiggle, no scolding
     shake[r][c] = 280;
     const now = performance.now();
     if (now - lastShake > 180){ blip(300, 0.05, 'nope'); lastShake = now; }
   }
 }
-
-/* paint every cell along the stroke so fast finger-drags never skip a pixel */
-function strokeTo(clientX, clientY){
+function strokeTo(clientX, clientY){            // fill along the stroke, no skips
   const at = cellAt(clientX, clientY);
   if (!at) return;
   if (lastRC){
-    const [r0,c0] = lastRC, [r1,c1] = at;
+    const [r0,c0]=lastRC, [r1,c1]=at;
     const steps = Math.max(Math.abs(r1-r0), Math.abs(c1-c0)) || 1;
-    for (let i=0;i<=steps;i++){
-      fillCell(Math.round(r0 + (r1-r0)*i/steps), Math.round(c0 + (c1-c0)*i/steps));
-    }
-  } else {
-    fillCell(at[0], at[1]);
-  }
+    for (let i=0;i<=steps;i++) fillCell(Math.round(r0+(r1-r0)*i/steps), Math.round(c0+(c1-c0)*i/steps));
+  } else fillCell(at[0], at[1]);
   lastRC = at;
 }
-
-function updateProgress(){
-  const pct = Math.round(paintedCount / paintableTotal * 100);
-  progressFill.style.width = pct + '%';
-  progressPct.textContent = pct + '%';
-}
-
 board.addEventListener('pointerdown', e => {
-  e.preventDefault();
-  painting = true; lastRC = null;
+  if (won) return;
+  e.preventDefault(); painting = true; lastRC = null;
   try { board.setPointerCapture(e.pointerId); } catch(_){}
   strokeTo(e.clientX, e.clientY);
 });
 board.addEventListener('pointermove', e => { if (painting){ e.preventDefault(); strokeTo(e.clientX, e.clientY); } });
-board.addEventListener('pointerup',   () => { painting = false; lastRC = null; });
-board.addEventListener('pointercancel',()=> { painting = false; lastRC = null; });
+board.addEventListener('pointerup',   () => { if (painting){ painting=false; lastRC=null; saveProgress(); } });
+board.addEventListener('pointercancel',()=> { if (painting){ painting=false; lastRC=null; saveProgress(); } });
 board.addEventListener('contextmenu', e => e.preventDefault());
+
+function updateProgress(){
+  const pct = paintableTotal ? Math.round(paintedCount / paintableTotal * 100) : 0;
+  progressFill.style.width = pct + '%';
+  progressPct.textContent = pct + '%';
+}
 
 /* ----- sound (all generated, no files) ---------------------------------- */
 let audio = null;
@@ -453,7 +460,7 @@ function initAudio(){ if (!audio){ try{ audio = new (window.AudioContext||window
 function blip(freq, dur, kind){
   if (!soundOn || !audio || !freq) return;
   const o = audio.createOscillator(), g = audio.createGain();
-  o.type = kind === 'tap' ? 'triangle' : (kind === 'nope' ? 'sine' : 'sine');
+  o.type = kind === 'tap' ? 'triangle' : 'sine';
   o.frequency.value = freq;
   g.gain.value = 0.0001;
   o.connect(g); g.connect(audio.destination);
@@ -462,17 +469,11 @@ function blip(freq, dur, kind){
   g.gain.exponentialRampToValueAtTime(0.0001, now+dur);
   o.start(now); o.stop(now+dur+0.02);
 }
-function sparkle(){                 // finished a whole colour
-  if (!soundOn || !audio) return;
-  [880,1175,1568].forEach((f,i)=> setTimeout(()=>blip(f,0.12,'tap'), i*70));
-}
-function chime(){                   // won the whole picture
-  if (!soundOn || !audio) return;
-  [523,659,784,1047,1319].forEach((f,i)=> setTimeout(()=>blip(f,0.35,'tap'), i*130));
-}
+function sparkle(){ if (soundOn&&audio) [880,1175,1568].forEach((f,i)=> setTimeout(()=>blip(f,0.12,'tap'), i*70)); }
+function chime(){ if (soundOn&&audio) [523,659,784,1047,1319].forEach((f,i)=> setTimeout(()=>blip(f,0.35,'tap'), i*130)); }
 
 /* ----- confetti ---------------------------------------------------------- */
-let parts = [], confettiOn = false;
+let parts = [];
 const CONFETTI_COLORS = ['#f5a9c7','#a8e6cf','#ffe29a','#ee7ba6','#b9a4e0','#8fd3f4'];
 function burstConfetti(){
   parts = [];
@@ -480,105 +481,111 @@ function burstConfetti(){
   for (let i=0;i<count;i++){
     parts.push({
       x: Math.random()*confetti.width,
-      // start already filling the upper screen so the party is instant
-      y: Math.random()*confetti.height*0.85 - confetti.height*0.15,
-      vx: (Math.random()-0.5)*2,
-      vy: 2 + Math.random()*3.5,
-      s: 6 + Math.random()*8,
-      rot: Math.random()*Math.PI,
-      vr: (Math.random()-0.5)*0.3,
-      col: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-      life: 1,
+      y: Math.random()*confetti.height*0.85 - confetti.height*0.15,  // start already on-screen
+      vx:(Math.random()-0.5)*2, vy:2+Math.random()*3.5,
+      s:6+Math.random()*8, rot:Math.random()*Math.PI, vr:(Math.random()-0.5)*0.3,
+      col:CONFETTI_COLORS[i % CONFETTI_COLORS.length], life:1,
     });
   }
-  confettiOn = true;
   runConfetti();
 }
 function runConfetti(){
   cctx.clearRect(0,0,confetti.width,confetti.height);
   let alive = 0;
   for (const p of parts){
-    p.x += p.vx; p.y += p.vy; p.vy += 0.03; p.rot += p.vr;
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.03; p.rot+=p.vr;
     if (p.y > confetti.height + 20) p.life = 0;
-    if (p.life > 0){
-      alive++;
-      cctx.save();
-      cctx.translate(p.x, p.y); cctx.rotate(p.rot);
-      cctx.fillStyle = p.col;
-      cctx.fillRect(-p.s/2, -p.s/2, p.s, p.s*0.6);
-      cctx.restore();
+    if (p.life > 0){ alive++;
+      cctx.save(); cctx.translate(p.x,p.y); cctx.rotate(p.rot);
+      cctx.fillStyle = p.col; cctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6); cctx.restore();
     }
   }
-  if (alive > 0){ requestAnimationFrame(runConfetti); }
-  else { cctx.clearRect(0,0,confetti.width,confetti.height); confettiOn = false; }
+  if (alive > 0) requestAnimationFrame(runConfetti);
+  else cctx.clearRect(0,0,confetti.width,confetti.height);
 }
 
 /* ----- win / reset ------------------------------------------------------- */
 function winGame(){
   won = true;
+  saveProgress();
   updateProgress();
   chime();
   burstConfetti();
+  document.getElementById('winMsg').textContent = `Your ${CHAR.name.toLowerCase()} looks wonderful!`;
   setTimeout(()=> document.getElementById('win').classList.add('show'), 700);
 }
 function resetGame(){
   for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++){ filled[r][c]=0; pop[r][c]=0; shake[r][c]=0; }
   paintedCount = 0; won = false;
+  clearSaved();
   updateProgress();
   refreshSwatches();
   selectColor(numbers[0]);
 }
 
-/* ----- preview thumbnail on the welcome screen -------------------------- */
-function drawPreview(){
-  const pc = document.getElementById('previewCanvas');
-  const g = pc.getContext('2d');
-  const cs = Math.floor(pc.width / COLS);
-  g.clearRect(0,0,pc.width,pc.height);
-  for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++){
-    const v = CHAR.grid[r][c];
-    g.fillStyle = v===0 ? CHAR.bg : CHAR.palette[v].hex;
-    g.fillRect(c*cs, r*cs, cs, cs);
-  }
+/* ----- character gallery ------------------------------------------------- */
+function buildGallery(){
+  galleryGrid.innerHTML = '';
+  CHARACTERS.forEach(ch => {
+    const R=ch.grid.length, C=ch.grid[0].length, cs=Math.floor(80/Math.max(R,C))+1;
+    const btn = document.createElement('button');
+    btn.className = 'pick' + (isComplete(ch) ? ' done' : '');
+    const cv = document.createElement('canvas'); cv.width=C*cs; cv.height=R*cs;
+    const g = cv.getContext('2d');
+    for (let r=0;r<R;r++) for (let c=0;c<C;c++){
+      const v = ch.grid[r][c];
+      g.fillStyle = v===0 ? ch.bg : ch.palette[v].hex;
+      g.fillRect(c*cs, r*cs, cs, cs);
+    }
+    btn.appendChild(cv);
+    const lab = document.createElement('div'); lab.className='plabel'; lab.textContent = ch.name;
+    btn.appendChild(lab);
+    const star = document.createElement('div'); star.className='star'; star.textContent='⭐';
+    btn.appendChild(star);
+    btn.addEventListener('pointerdown', e => { e.preventDefault(); chooseCharacter(ch); });
+    galleryGrid.appendChild(btn);
+  });
+}
+function showGallery(){
+  if (CHAR) saveProgress();
+  buildGallery();
+  galleryEl.classList.add('show');
+}
+function chooseCharacter(ch){
+  initAudio();
+  if (audio && audio.state === 'suspended') audio.resume();
+  galleryEl.classList.remove('show');
+  document.getElementById('win').classList.remove('show');
+  loadCharacter(ch);
 }
 
 /* ----- buttons ----------------------------------------------------------- */
-document.getElementById('playBtn').addEventListener('pointerdown', e => {
-  e.preventDefault();
-  initAudio();
-  if (audio && audio.state === 'suspended') audio.resume();
-  document.getElementById('welcome').classList.remove('show');
-});
+document.getElementById('homeBtn').addEventListener('pointerdown', e => { e.preventDefault(); showGallery(); });
 document.getElementById('soundBtn').addEventListener('pointerdown', e => {
-  e.preventDefault();
-  soundOn = !soundOn;
+  e.preventDefault(); soundOn = !soundOn;
   document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
 });
 document.getElementById('resetBtn').addEventListener('pointerdown', e => {
-  e.preventDefault();
-  document.getElementById('confirm').classList.add('show');
+  e.preventDefault(); if (CHAR) document.getElementById('confirm').classList.add('show');
 });
 document.getElementById('confirmYes').addEventListener('pointerdown', e => {
-  e.preventDefault();
-  document.getElementById('confirm').classList.remove('show');
-  resetGame();
+  e.preventDefault(); document.getElementById('confirm').classList.remove('show'); resetGame();
 });
 document.getElementById('confirmNo').addEventListener('pointerdown', e => {
-  e.preventDefault();
-  document.getElementById('confirm').classList.remove('show');
+  e.preventDefault(); document.getElementById('confirm').classList.remove('show');
 });
 document.getElementById('againBtn').addEventListener('pointerdown', e => {
-  e.preventDefault();
-  document.getElementById('win').classList.remove('show');
-  resetGame();
+  e.preventDefault(); document.getElementById('win').classList.remove('show'); resetGame();
 });
+document.getElementById('pickBtn').addEventListener('pointerdown', e => {
+  e.preventDefault(); document.getElementById('win').classList.remove('show'); showGallery();
+});
+window.addEventListener('pagehide', saveProgress);
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveProgress(); });
 
 /* ----- go ---------------------------------------------------------------- */
 resize();
-drawPreview();
-refreshSwatches();
-selectColor(numbers[0]);
-updateProgress();
+buildGallery();
 requestAnimationFrame(draw);
 </script>
 </body>

@@ -1,8 +1,8 @@
 # 🎨 Paint by Numbers
 
 A tiny, adorable **paint-by-numbers game for little artists**, made for playing on a
-tablet in the browser. Tap a color, then fill in the matching numbers to reveal a
-cute pixel character. Starts with a candy-pastel **kitty cat** 🐱.
+tablet in the browser. Pick a cute pixel character, tap a color, and fill in the
+matching numbers to reveal it. Comes with **seven candy-pastel characters** 🐱🐶🐰🐻🐥🦊🐸.
 
 Built as a gift for my daughter after one too many junky app-store games — so it's
 **fully open source**, ad-free, tracker-free, and works completely offline.
@@ -10,30 +10,32 @@ Built as a gift for my daughter after one too many junky app-store games — so 
 **▶ Play it here:** https://maximstark.github.io/paint-by-numbers/
 
 <p align="center">
-  <img src="screenshot.png" alt="The finished candy-pastel pixel kitty" width="360">
+  <img src="screenshot.png" alt="The seven paintable pixel characters: kitty, puppy, bunny, bear, chick, fox, frog" width="640">
 </p>
 
 ## How to play
 
-1. Tap **▶ Play**.
+1. **Pick a picture** from the gallery (kitty, puppy, bunny, bear, chick, fox, frog).
 2. Tap a **color** at the bottom. The squares that match it gently glow.
 3. **Tap or drag** across those squares to paint them.
 4. Fill every number to finish the picture — then enjoy the confetti! 🎉
 
 Little touches for little hands:
-- **Big chunky pixels** and large touch targets.
+- **Big, friendly pixels** and large touch targets.
 - The chosen color’s squares **light up** so it’s easy to find where to paint.
 - Wrong squares just do a friendly **wiggle** — you can’t "ruin" the picture.
 - Finished colors get a **✓**, and it hops to the next color for you.
+- **Progress is saved** for each picture, so she can stop and come back later. Finished
+  pictures earn a ⭐ in the gallery.
 - Gentle tap sounds + a happy chime (there’s a 🔊/🔇 button to mute).
-- **↺ Start over** button, with a "Are you sure?" so it isn’t tapped by accident.
+- **🏠 pick another picture** and **↺ start over** buttons (start-over asks first, so it
+  isn’t tapped by accident).
 
 ## Run it yourself
 
-It's a **single `index.html` file** with no build step and no dependencies.
+No build step, no dependencies — just `index.html` plus a `characters.js` data file.
 
-- Easiest: just open `index.html` in a browser. (For the sound to work you may need
-  to serve it — see below.)
+- Easiest: open `index.html` in a browser. (For sound, you may need to serve it — below.)
 - Local server (recommended for tablets on your home network):
 
   ```bash
@@ -49,31 +51,28 @@ internet once loaded.
 
 ## Add your own character
 
-Everything is data-driven, so a new character is just a small object. Open
-`index.html` and look for the `KITTY` object near the top of the `<script>`:
+Characters are drawn with simple shape primitives in [`tools/gen.js`](tools/gen.js) —
+circles, ellipses, rectangles, triangles — plus an automatic outline. It's much easier
+than placing pixels by hand. For example:
 
 ```js
-const NEWPAL = {
-  id: 'bunny',
-  name: 'Bunny',
-  bg: '#eae2f6',                       // soft background color (not painted)
-  palette: {                           // number -> { hex, name }
-    1: { hex:'#ffffff', name:'White' },
-    2: { hex:'#ffd7e6', name:'Pink'  },
-    // ...up to about 10 colors works great for kids
-  },
-  grid: [                              // rows of color numbers; 0 = background
-    [0,0,1,1,0,0],
-    [0,1,2,2,1,0],
-    // ...any width/height you like (square-ish looks best)
-  ],
-};
+disc(g, CX, 15, 8.6, 1);          // a round head in color 1
+disc(g, 9, 8, 3.6, 1); disc(g, 26, 8, 3.6, 1);   // two round ears
+rect(g, 12, 15, 13, 17, 7);       // an eye in color 7 (the plum outline color)
+outline(g, 7);                    // auto-draw the border around everything
 ```
 
-Then add it to the `CHARACTERS` array. The grid is a plain 2-D array where each
-number is the color that square should be painted, and `0` means "leave as
-background." Keep the pixels chunky (roughly 14–20 squares wide) and it’ll stay easy
-and cute.
+To add a character:
+
+1. Add a `palette` (number → `{hex, name}`) and a drawing block in `tools/gen.js`,
+   then list its `id` in the `order`/`names` maps at the bottom.
+2. Run `node tools/gen.js` — it rewrites `characters.js` and prints a text preview of
+   each sprite so you can eyeball it.
+3. Refresh the game; the new character appears in the gallery automatically.
+
+Prefer raw pixels? You can also edit `characters.js` directly — each character is
+`{ id, name, bg, palette, grid }`, where `grid` is a 2-D array of color numbers and
+`0` means "background, not painted." The current characters are **36×36**.
 
 Pull requests with new characters are very welcome! 💖
 
