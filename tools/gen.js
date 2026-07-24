@@ -158,14 +158,23 @@ P.penguin = {1:['#97aee0','Blue'],2:['#fff4e9','White'],3:['#ffb15a','Orange'],6
 // ---- emit characters.js ----
 const order = ['kitty','puppy','bunny','bear','chick','fox','frog','penguin'];
 const names = {kitty:'Kitty',puppy:'Puppy',bunny:'Bunny',bear:'Bear',chick:'Chick',fox:'Fox',frog:'Frog',penguin:'Penguin'};
-const chars = order.map(id => {
-  const pal = {}; for(const k of Object.keys(P[id])) pal[k] = {hex:P[id][k][0], name:P[id][k][1]};
-  return {id, name:names[id], bg:'#eae2f6', palette:pal, grid:OUT[id]};
+const big = require('./chars72');                       // the 72x72 set
+
+const build = (ids, nameMap, pals, grids) => ids.map(id => {
+  const pal = {}; for(const k of Object.keys(pals[id])) pal[k] = {hex:pals[id][k][0], name:pals[id][k][1]};
+  return {id, name:nameMap[id], bg:'#eae2f6', palette:pal, grid:grids[id]};
 });
+const chars = [
+  ...build(order, names, P, OUT),
+  ...build(big.order, big.names, big.P, big.OUT),
+];
 const js = 'window.CHARACTERS = ' + JSON.stringify(chars) + ';\n';
 fs.writeFileSync(require('path').join(__dirname, '..', 'characters.js'), js);  // repo root
 
-// ---- ASCII preview ----
-const glyph = {0:'.',1:'1',2:'2',3:'3',4:'4',5:'5',6:'6',7:'@'};
-for(const id of order){ console.log('\n=== '+id+' ==='); for(const row of OUT[id]) console.log(row.map(v=>glyph[v]).join('')); }
-console.log('\nwrote characters.js');
+// ---- report ----
+for (const ch of chars){
+  let n = 0;
+  for (const row of ch.grid) for (const v of row) if (v) n++;
+  console.log(`${ch.name.padEnd(10)} ${ch.grid.length}x${ch.grid[0].length}  ${String(n).padStart(4)} cells to paint  ${Object.keys(ch.palette).length} colours`);
+}
+console.log('\nwrote characters.js — run `node tools/preview.js` to look at it');

@@ -159,6 +159,7 @@
     <h1><span>🎨</span><span>Paint by Numbers</span></h1>
     <span class="spacer"></span>
     <button class="iconbtn" id="homeBtn" title="Pick a picture">🏠</button>
+    <button class="iconbtn" id="zoomBtn" title="Zoom in">🔍</button>
     <button class="iconbtn" id="soundBtn" title="Sound">🔊</button>
     <button class="iconbtn" id="resetBtn" title="Start over">↺</button>
   </header>
@@ -238,6 +239,11 @@ let CHAR=null, ROWS=0, COLS=0, filled=[], pop=[], shake=[];
 let numbers=[], swatches={};
 let selected=0, paintedCount=0, paintableTotal=0, won=false, soundOn=true;
 let cell=24, ox=0, oy=0;
+/* viewport: the canvas is a fixed window onto the picture. At zoom 1 the whole
+   picture fits it exactly; zooming in makes the cells finger-sized (the 72x72
+   characters need this — at fit their cells are ~11px). */
+let vw=0, vh=0, fitCell=24, zoom=1, panTarget=null;
+const ZOOM_STEPS = [1, 2, 3.2], ZOOM_MAX = 8;
 
 /* ----- elements ---------------------------------------------------------- */
 const board = document.getElementById('board');
@@ -300,10 +306,12 @@ function loadCharacter(ch){
   }
   won = paintedCount >= paintableTotal && paintableTotal>0;
 
+  zoom = 1; panTarget = null; glyphs = null;      // always open on the whole picture
   buildPalette();
   refreshSwatches();
   selectColor(firstIncomplete());
   resize();
+  updateZoomBtn();
   updateProgress();
 }
 
@@ -328,6 +336,8 @@ function selectColor(num){
   selected = num;
   numbers.forEach(n => swatches[n].classList.toggle('sel', n === num));
   blip(660, 0.05, 'select');
+  // zoomed in with none of this colour on screen? glide to the nearest bit of it
+  if (zoom > 1.05 && vw && !hasVisibleRemaining(num)) centerOnRemaining(num, false);
 }
 function remainingFor(num){
   let n=0;
@@ -351,30 +361,128 @@ function resize(){
   const stage = document.getElementById('stage');
   const rect = stage.getBoundingClientRect();
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const size = Math.floor(Math.min(rect.width, rect.height) - 4);
-  cell = Math.max(6, Math.floor(size / Math.max(ROWS, COLS)));
-  const w = cell * COLS, h = cell * ROWS;
-  board.style.width = w + 'px';
-  board.style.height = h + 'px';
-  board.width = Math.floor(w * dpr);
-  board.height = Math.floor(h * dpr);
+  const size = Math.max(80, Math.floor(Math.min(rect.width, rect.height) - 4));
+  vw = COLS >= ROWS ? size : Math.round(size * COLS / ROWS);
+  vh = ROWS >= COLS ? size : Math.round(size * ROWS / COLS);
+  board.style.width = vw + 'px';
+  board.style.height = vh + 'px';
+  board.width = Math.floor(vw * dpr);
+  board.height = Math.floor(vh * dpr);
   ctx.setTransform(dpr,0,0,dpr,0,0);
-  ox = 0; oy = 0;
+  fitCell = vw / COLS;
+  cell = fitCell * zoom;
+  glyphs = null;
+  clampPan();
 }
 window.addEventListener('resize', resize);
+
+/* keep the picture inside the window: centred while it fits, edge-locked once zoomed */
+function clampPan(){
+  const w = cell*COLS, h = cell*ROWS;
+  ox = w <= vw ? (vw-w)/2 : Math.min(0, Math.max(vw-w, ox));
+  oy = h <= vh ? (vh-h)/2 : Math.min(0, Math.max(vh-h, oy));
+}
+function setZoom(z, ax, ay){                      // ax,ay = viewport point to hold still
+  z = Math.max(1, Math.min(ZOOM_MAX, z));
+  if (ax === undefined){ ax = vw/2; ay = vh/2; }
+  const gx = (ax-ox)/cell, gy = (ay-oy)/cell;     // grid coords under the anchor
+  zoom = z; cell = fitCell*zoom; glyphs = null; panTarget = null;
+  ox = ax - gx*cell; oy = ay - gy*cell;
+  clampPan();
+}
+function panTo(x, y, instant){
+  const sx=ox, sy=oy;
+  ox = x; oy = y; clampPan();
+  const tx=ox, ty=oy;
+  if (instant) return;
+  ox = sx; oy = sy; panTarget = {x:tx, y:ty};
+}
+function visibleRange(){
+  return {
+    r0: Math.max(0, Math.floor(-oy/cell)),        r1: Math.min(ROWS-1, Math.ceil((vh-oy)/cell)),
+    c0: Math.max(0, Math.floor(-ox/cell)),        c1: Math.min(COLS-1, Math.ceil((vw-ox)/cell)),
+  };
+}
+function hasVisibleRemaining(num){
+  const v = visibleRange();
+  for (let r=v.r0;r<=v.r1;r++) for (let c=v.c0;c<=v.c1;c++)
+    if (CHAR.grid[r][c]===num && filled[r][c]===0) return true;
+  return false;
+}
+// slide the window to the nearest unpainted cell of a colour, so nobody gets stranded
+function centerOnRemaining(num, instant){
+  const ccx = (vw/2-ox)/cell, ccy = (vh/2-oy)/cell;
+  let best=null, bd=Infinity;
+  for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++){
+    if (CHAR.grid[r][c]!==num || filled[r][c]!==0) continue;
+    const dx=c+0.5-ccx, dy=r+0.5-ccy, d=dx*dx+dy*dy;
+    if (d<bd){ bd=d; best=[r,c]; }
+  }
+  if (best) panTo(vw/2-(best[1]+0.5)*cell, vh/2-(best[0]+0.5)*cell, instant);
+}
+function cycleZoom(){
+  let i = ZOOM_STEPS.findIndex(s => Math.abs(s-zoom) < 0.05);
+  i = (i < 0 ? 0 : i+1) % ZOOM_STEPS.length;
+  setZoom(ZOOM_STEPS[i]);
+  if (ZOOM_STEPS[i] > 1) centerOnRemaining(selected, true);
+  updateZoomBtn();
+}
+function updateZoomBtn(){
+  const b = document.getElementById('zoomBtn');
+  b.textContent = zoom > 1.05 ? '🔎' : '🔍';
+  b.title = zoom > 1.05 ? `Zoom ${zoom.toFixed(1)}× — tap to change` : 'Zoom in';
+}
+
+/* numbers are drawn thousands of times a frame on a 72x72 grid, so each digit is
+   pre-rendered once per zoom level and blitted instead of laid out as text */
+let glyphs = null;
+function glyph(num, target){
+  const s = Math.max(1, Math.round(cell));
+  if (!glyphs || glyphs.s !== s) glyphs = {s, on:{}, off:{}};
+  const bank = target ? glyphs.on : glyphs.off;
+  if (!bank[num]){
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = Math.max(1, Math.round(s*dpr));
+    const g = cv.getContext('2d');
+    g.setTransform(dpr,0,0,dpr,0,0);
+    g.fillStyle = target ? CHAR.palette[num].hex : '#c8bcd6';
+    g.font = `${target?800:600} ${Math.floor(s*0.55)}px "Baloo 2",system-ui,sans-serif`;
+    g.textAlign='center'; g.textBaseline='middle';
+    g.fillText(String(num), s/2, s/2+1);
+    bank[num] = cv;
+  }
+  return bank[num];
+}
 
 /* ----- draw the board (runs every frame) -------------------------------- */
 function draw(t){
   requestAnimationFrame(draw);
   if (!CHAR){ return; }
-  ctx.clearRect(0,0,board.width,board.height);
-  const highlight = 0.5 + 0.5*Math.sin(t/220);   // pulse for the selected colour
-  const showNums = cell >= 12;                    // hide tiny numbers on small screens
 
-  for (let r=0;r<ROWS;r++){
-    for (let c=0;c<COLS;c++){
+  if (panTarget){                                  // eased auto-pan to the next bit of work
+    ox += (panTarget.x-ox)*0.18; oy += (panTarget.y-oy)*0.18;
+    if (Math.abs(panTarget.x-ox) < 0.5 && Math.abs(panTarget.y-oy) < 0.5){
+      ox = panTarget.x; oy = panTarget.y; panTarget = null;
+    }
+  }
+
+  ctx.fillStyle = CHAR.bg;
+  ctx.fillRect(0,0,vw,vh);
+  const highlight = 0.5 + 0.5*Math.sin(t/220);     // pulse for the selected colour
+  const showNums = cell >= 12;                     // hide tiny numbers when zoomed out
+  const showGrid = cell >= 6;
+  const v = visibleRange();                        // only touch cells actually on screen
+
+  ctx.strokeStyle = 'rgba(110,90,121,0.10)';
+  ctx.lineWidth = 1;
+
+  for (let r=v.r0;r<=v.r1;r++){
+    for (let c=v.c0;c<=v.c1;c++){
       const val = CHAR.grid[r][c];
-      let x = ox + c*cell, y = oy + r*cell;
+      // integer edges shared with the neighbouring cell: no seams at fractional zoom
+      let x = Math.round(ox + c*cell),     y = Math.round(oy + r*cell);
+      const w = Math.round(ox + (c+1)*cell) - x, h = Math.round(oy + (r+1)*cell) - y;
 
       if (shake[r][c] > 0){                        // gentle wiggle on a wrong tap
         const k = shake[r][c]/280;
@@ -382,55 +490,46 @@ function draw(t){
         shake[r][c] = Math.max(0, shake[r][c] - 16);
       }
 
-      if (val === 0){                              // background — calm, not painted
-        ctx.fillStyle = CHAR.bg;
-        ctx.fillRect(x,y,cell,cell);
-        continue;
-      }
-
-      const isFilled = filled[r][c] !== 0;
+      if (val === 0) continue;                     // background — already filled above
 
       if (won){                                    // clean reveal — no numbers/grid
         ctx.fillStyle = CHAR.palette[filled[r][c] || val].hex;
-        ctx.fillRect(x,y,cell,cell);
+        ctx.fillRect(x,y,w,h);
         continue;
       }
 
-      if (isFilled){
-        let s = 1;
-        if (pop[r][c] > 0){ const k = pop[r][c]/220; s = 1 + 0.18*k; pop[r][c] = Math.max(0, pop[r][c]-16); }
-        ctx.save();
-        ctx.translate(x+cell/2, y+cell/2); ctx.scale(s,s); ctx.translate(-cell/2,-cell/2);
+      if (filled[r][c] !== 0){
         ctx.fillStyle = CHAR.palette[filled[r][c]].hex;
-        ctx.fillRect(0,0,cell,cell);
-        ctx.restore();
+        if (pop[r][c] > 0){
+          const s = 1 + 0.18*(pop[r][c]/220);
+          pop[r][c] = Math.max(0, pop[r][c]-16);
+          ctx.save();
+          ctx.translate(x+w/2, y+h/2); ctx.scale(s,s);
+          ctx.fillRect(-w/2,-h/2,w,h);
+          ctx.restore();
+        } else {
+          ctx.fillRect(x,y,w,h);
+        }
       } else {
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(x,y,cell,cell);
+        ctx.fillRect(x,y,w,h);
         const isTarget = val === selected;
         if (isTarget){
           ctx.fillStyle = CHAR.palette[val].hex;
           ctx.globalAlpha = 0.22 + 0.18*highlight;
-          ctx.fillRect(x,y,cell,cell);
+          ctx.fillRect(x,y,w,h);
           ctx.globalAlpha = 1;
         }
-        if (showNums){
-          ctx.fillStyle = isTarget ? CHAR.palette[val].hex : '#c8bcd6';
-          ctx.font = `${isTarget?800:600} ${Math.floor(cell*0.55)}px "Baloo 2",system-ui,sans-serif`;
-          ctx.textAlign='center'; ctx.textBaseline='middle';
-          ctx.fillText(String(val), x+cell/2, y+cell/2+1);
-        }
+        if (showNums) ctx.drawImage(glyph(val, isTarget), x, y, w, h);
       }
 
-      ctx.strokeStyle = 'rgba(110,90,121,0.10)';   // soft grid lines
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x+0.5,y+0.5,cell-1,cell-1);
+      if (showGrid) ctx.strokeRect(x+0.5,y+0.5,w-1,h-1);
     }
   }
 }
 
 /* ----- painting ---------------------------------------------------------- */
-let painting=false, lastShake=0, lastRC=null;
+let painting=false, lastShake=0, lastRC=null, combo=0, lastFill=0;
 function cellAt(clientX, clientY){
   const rect = board.getBoundingClientRect();
   const c = Math.floor((clientX - rect.left - ox) / cell);
@@ -447,7 +546,10 @@ function fillCell(r,c){
     filled[r][c] = selected;
     pop[r][c] = 220;
     paintedCount++;
-    blip(520 + Math.random()*40, 0.06, 'tap');
+    const now = performance.now();                 // a run of quick fills climbs in pitch
+    combo = (now - lastFill < 420) ? Math.min(combo+1, 10) : 0;
+    lastFill = now;
+    blip(520 + combo*26 + Math.random()*20, 0.06, 'tap');
     updateProgress();
     if (remainingFor(selected)===0){
       refreshSwatches(); sparkle();
@@ -470,15 +572,57 @@ function strokeTo(clientX, clientY){            // fill along the stroke, no ski
   } else fillCell(at[0], at[1]);
   lastRC = at;
 }
+/* one finger paints; two fingers pinch to zoom and drag to move the picture */
+const pointers = new Map();
+let pinch = null;
+function pinchNow(){
+  const [a,b] = [...pointers.values()];
+  const r = board.getBoundingClientRect();
+  return { d: Math.hypot(a.x-b.x, a.y-b.y), mx: (a.x+b.x)/2 - r.left, my: (a.y+b.y)/2 - r.top };
+}
+function doPinch(){
+  const p = pinchNow();
+  if (!pinch){ pinch = p; return; }
+  ox += p.mx - pinch.mx; oy += p.my - pinch.my;                 // drag
+  if (pinch.d > 8){                                            // spread / squeeze
+    const z = Math.max(1, Math.min(ZOOM_MAX, zoom * (p.d/pinch.d)));
+    const gx = (p.mx-ox)/cell, gy = (p.my-oy)/cell;
+    zoom = z; cell = fitCell*zoom; glyphs = null;
+    ox = p.mx - gx*cell; oy = p.my - gy*cell;
+  }
+  clampPan(); updateZoomBtn();
+  pinch = p;
+}
 board.addEventListener('pointerdown', e => {
-  if (won) return;
-  e.preventDefault(); painting = true; lastRC = null;
+  e.preventDefault();
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
   try { board.setPointerCapture(e.pointerId); } catch(_){}
+  if (pointers.size >= 2){ painting = false; lastRC = null; pinch = null; return; }
+  if (won) return;
+  painting = true; lastRC = null; panTarget = null;
   strokeTo(e.clientX, e.clientY);
 });
-board.addEventListener('pointermove', e => { if (painting){ e.preventDefault(); strokeTo(e.clientX, e.clientY); } });
-board.addEventListener('pointerup',   () => { if (painting){ painting=false; lastRC=null; saveProgress(); } });
-board.addEventListener('pointercancel',()=> { if (painting){ painting=false; lastRC=null; saveProgress(); } });
+board.addEventListener('pointermove', e => {
+  const p = pointers.get(e.pointerId);
+  if (!p) return;
+  p.x = e.clientX; p.y = e.clientY;
+  e.preventDefault();
+  if (pointers.size >= 2){ doPinch(); return; }
+  if (painting) strokeTo(e.clientX, e.clientY);
+});
+function endPointer(e){
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch = null;
+  if (pointers.size === 0 && painting){ painting = false; lastRC = null; saveProgress(); }
+}
+board.addEventListener('pointerup', endPointer);
+board.addEventListener('pointercancel', endPointer);
+board.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = board.getBoundingClientRect();
+  setZoom(zoom * (e.deltaY < 0 ? 1.15 : 1/1.15), e.clientX-r.left, e.clientY-r.top);
+  updateZoomBtn();
+}, {passive:false});
 board.addEventListener('contextmenu', e => e.preventDefault());
 
 function updateProgress(){
@@ -487,21 +631,42 @@ function updateProgress(){
   progressPct.textContent = pct + '%';
 }
 
-/* ----- sound (all generated, no files) ---------------------------------- */
-let audio = null;
-function initAudio(){ if (!audio){ try{ audio = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+/* ----- sound (all generated, no files) ----------------------------------
+   iOS suspends the AudioContext whenever the app is backgrounded, and it only
+   resumes inside a user gesture. initAudio() is therefore called from every
+   gesture (and on return to the foreground) so the click never goes missing. */
+let audio = null, master = null, voices = 0, lastVoice = 0;
+function initAudio(){
+  if (!audio){
+    try {
+      audio = new (window.AudioContext||window.webkitAudioContext)();
+      master = audio.createGain(); master.gain.value = 1; master.connect(audio.destination);
+      const s = audio.createBufferSource();                 // silent buffer unlocks iOS output
+      s.buffer = audio.createBuffer(1,1,22050); s.connect(master); s.start(0);
+    } catch(e){ audio = null; return; }
+  }
+  if (audio.state !== 'running') audio.resume().catch(()=>{});
+}
 function blip(freq, dur, kind){
-  if (!soundOn || !audio || !freq) return;
+  if (!soundOn || !freq) return;
+  initAudio();                                    // heals a context suspended in the background
+  if (!audio || audio.state !== 'running') return;
+  const now = audio.currentTime;
+  if (voices >= 10 || now - lastVoice < 0.022) return;   // a fast drag must not spawn 100 oscillators
+  lastVoice = now;
   const o = audio.createOscillator(), g = audio.createGain();
   o.type = kind === 'tap' ? 'triangle' : 'sine';
   o.frequency.value = freq;
   g.gain.value = 0.0001;
-  o.connect(g); g.connect(audio.destination);
-  const now = audio.currentTime;
+  o.connect(g); g.connect(master);
   g.gain.exponentialRampToValueAtTime(kind==='tap'?0.18:0.12, now+0.01);
   g.gain.exponentialRampToValueAtTime(0.0001, now+dur);
   o.start(now); o.stop(now+dur+0.02);
+  voices++; o.onended = () => { voices = Math.max(0, voices-1); };
 }
+// any tap anywhere counts as the gesture that unlocks/resumes audio
+document.addEventListener('pointerdown', initAudio, true);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) initAudio(); });
 function sparkle(){ if (soundOn&&audio) [880,1175,1568].forEach((f,i)=> setTimeout(()=>blip(f,0.12,'tap'), i*70)); }
 function chime(){ if (soundOn&&audio) [523,659,784,1047,1319].forEach((f,i)=> setTimeout(()=>blip(f,0.35,'tap'), i*130)); }
 
@@ -590,10 +755,15 @@ function chooseCharacter(ch){
   galleryEl.classList.remove('show');
   document.getElementById('win').classList.remove('show');
   loadCharacter(ch);
+  if (won){                       // already finished: offer a fresh start, so it never feels "broken"
+    document.getElementById('winMsg').textContent = `You already painted this ${CHAR.name.toLowerCase()} — paint it again?`;
+    document.getElementById('win').classList.add('show');
+  }
 }
 
 /* ----- buttons ----------------------------------------------------------- */
 document.getElementById('homeBtn').addEventListener('pointerdown', e => { e.preventDefault(); showGallery(); });
+document.getElementById('zoomBtn').addEventListener('pointerdown', e => { e.preventDefault(); if (CHAR) cycleZoom(); });
 document.getElementById('soundBtn').addEventListener('pointerdown', e => {
   e.preventDefault(); soundOn = !soundOn;
   document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
