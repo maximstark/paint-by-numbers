@@ -85,7 +85,7 @@ Pull requests with new characters are very welcome! 💖
 The app is **free, ad-free, and collects nothing** — and it always will be. If it made a
 little one smile and you'd like to chip in, there's an optional tip jar:
 
-**☕ [ko-fi.com/maximstark](https://ko-fi.com/maximstark)**
+**☕ [buymeacoffee.com/temperaturezero](https://buymeacoffee.com/temperaturezero)**
 
 Inside the app the same link lives behind a small "ask a grown-up" gate, so it stays out of
 kids' hands. Never required, always appreciated. 💛
