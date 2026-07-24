@@ -134,6 +134,21 @@
   }
   .pick.done .star{ display:block; }
 
+  /* ---------- discreet, grown-ups-only support link ---------- */
+  .supportLink{
+    margin-top:16px; border:none; background:transparent; cursor:pointer;
+    color:#b79ecf; font-family:inherit; font-weight:700; font-size:14px;
+    text-decoration:underline; text-underline-offset:3px;
+  }
+  .supportLink:active{ color:#8f76b0; }
+  #gateInput{
+    font-family:inherit; font-size:26px; font-weight:800; text-align:center;
+    width:130px; padding:10px; border-radius:14px; border:3px solid #e6dbf5;
+    color:#6e5a79; outline:none; user-select:auto; -webkit-user-select:auto;
+  }
+  #gateInput:focus{ border-color:#f18fbf; }
+  #gateErr{ color:#d94e8b; font-weight:700; min-height:1.2em; margin:.4em 0 0; }
+
   /* confetti sits above everything but ignores taps */
   #confetti{ position:fixed; inset:0; pointer-events:none; z-index:30; }
 </style>
@@ -164,6 +179,22 @@
     <h2>Paint by Numbers</h2>
     <div class="subtitle">for little artists 🐾 — pick a picture!</div>
     <div id="galleryGrid"></div>
+    <button class="supportLink" id="supportBtn">♥ Support this free app</button>
+  </div>
+</div>
+
+<!-- Parental gate (grown-ups only) before opening the donate page -->
+<div class="overlay" id="gate">
+  <div class="panel">
+    <h2>Ask a grown-up 🧑</h2>
+    <p>This opens a page to support the app. To continue, solve this:</p>
+    <p style="font-size:26px;font-weight:800;margin:.2em 0" id="gateQ">7 × 8 = ?</p>
+    <input id="gateInput" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="answer">
+    <div id="gateErr"></div>
+    <div>
+      <button class="bigbtn" id="gateOk">Open</button>
+      <button class="bigbtn ghost" id="gateCancel">Back</button>
+    </div>
   </div>
 </div>
 
@@ -200,6 +231,7 @@
    ========================================================================== */
 const CHARACTERS = window.CHARACTERS || [];
 const SAVE_PREFIX = 'pbn36.';               // bump if the grids ever change shape
+const SUPPORT_URL = 'https://ko-fi.com/maximstark';   // <-- your Ko-fi page (edit this one line)
 
 /* ----- state (all rebuilt when a character is chosen) -------------------- */
 let CHAR=null, ROWS=0, COLS=0, filled=[], pop=[], shake=[];
@@ -581,6 +613,32 @@ document.getElementById('againBtn').addEventListener('pointerdown', e => {
 document.getElementById('pickBtn').addEventListener('pointerdown', e => {
   e.preventDefault(); document.getElementById('win').classList.remove('show'); showGallery();
 });
+/* ----- support (grown-ups-only parental gate before the donate page) ----- */
+let gateAnswer = 0;
+function newQuestion(){
+  const a = 3 + Math.floor(Math.random()*7);   // 3..9
+  const b = 6 + Math.floor(Math.random()*4);   // 6..9  (product 18..81 — easy for adults)
+  gateAnswer = a*b;
+  document.getElementById('gateQ').textContent = `${a} × ${b} = ?`;
+  const inp = document.getElementById('gateInput');
+  inp.value = ''; setTimeout(()=> inp.focus(), 60);
+}
+function openGate(){
+  document.getElementById('gateErr').textContent = '';
+  newQuestion();
+  document.getElementById('gate').classList.add('show');
+}
+function closeGate(){ document.getElementById('gate').classList.remove('show'); }
+document.getElementById('supportBtn').addEventListener('pointerdown', e => { e.preventDefault(); openGate(); });
+document.getElementById('gateCancel').addEventListener('pointerdown', e => { e.preventDefault(); closeGate(); });
+document.getElementById('gateOk').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  const val = parseInt(document.getElementById('gateInput').value, 10);
+  if (val === gateAnswer){ closeGate(); window.open(SUPPORT_URL, '_blank', 'noopener'); }
+  else { document.getElementById('gateErr').textContent = 'Not quite — ask a grown-up to try again.'; newQuestion(); }
+});
+document.getElementById('gateInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('gateOk').dispatchEvent(new Event('pointerdown')); });
+
 window.addEventListener('pagehide', saveProgress);
 document.addEventListener('visibilitychange', () => { if (document.hidden) saveProgress(); });
 

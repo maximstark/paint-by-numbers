@@ -80,6 +80,16 @@ Prefer raw pixels? You can also edit `characters.js` directly — each character
 
 Pull requests with new characters are very welcome! 💖
 
+## Support
+
+The app is **free, ad-free, and collects nothing** — and it always will be. If it made a
+little one smile and you'd like to chip in, there's an optional tip jar:
+
+**☕ [ko-fi.com/maximstark](https://ko-fi.com/maximstark)**
+
+Inside the app the same link lives behind a small "ask a grown-up" gate, so it stays out of
+kids' hands. Never required, always appreciated. 💛
+
 ## License
 
 [MIT](LICENSE) — do anything you like with it. Made with love for kids everywhere.
