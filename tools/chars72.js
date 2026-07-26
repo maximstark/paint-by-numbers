@@ -321,8 +321,80 @@ P.jellyfish = {1:['#c9a9e8','Lilac'],2:['#f5a9c7','Pink'],3:['#ecd9f7','Pale'],4
   outline(g,7);
   OUT.jellyfish = g; }
 
-const order = ['narwhal','sloth','turtle','axolotl','capybara','manatee','beluga','dolphin','jellyfish'];
+/* ================= FOAL ================= */
+P.foal = {1:['#e2ab7d','Caramel'],2:['#fff1e0','Cream'],3:['#ffd98a','Blonde'],5:['#a97c52','Hoof'],6:['#f6b3c6','Blush'],7:['#6e5a79','Plum']};
+{ const g = make();
+  // the far pair of legs goes down first so the near pair can be outlined over it
+  seg(g,25,48,23,64,6,1); seg(g,48,47,50,63,6,1);
+  ell(g,23,65,3.4,2.6,5); ell(g,50,64,3.4,2.6,5);
+  taper(g, bez([50,34],[61,42],[58,56]), 9, 4, 3);                            // swishy tail
+  ell(g,38,42,17,13,1);                                                      // round foal barrel
+  seg(g,28,38,17,25,12,1);                                                   // neck
+  disc(g,16,21,8,1);                                                         // skull
+  seg(g,13,25,9,33,9,1);                                                     // long muzzle
+  poly(g,[[12,13],[10,4],[17,12]],1); poly(g,[[19,12],[22,3],[25,12]],1);    // pricked ears
+  curve(g, bez([21,12],[25,20],[29,28]), 5.5, 3);                            // mane along the crest
+  disc(g,18,10,4.4,3);                                                       // forelock
+  shade(g,2,[1], l => seg(l,15,15,10,30,5,1));                               // blaze down the face
+  shade(g,2,[1], l => disc(l,9,33,5,1));                                     // pale muzzle
+  edged(g,1, l => { seg(l,31,49,31,65,6,1); seg(l,52,47,54,63,6,1); });       // near legs
+  ell(g,31,66,3.6,2.6,5); ell(g,54,64,3.6,2.6,5);
+  eye(g,14,20,2.8,2);
+  blush(g,11,27,2.6,6);
+  px(g,8,32,7);                                                              // nostril
+  curve(g, bez([6,35],[9,37],[12,35]), 1.6, 7);                              // soft muzzle line
+  outline(g,7);
+  OUT.foal = g; }
+
+/* ================= MERMAID ================= */
+P.mermaid = {1:['#f7cfb0','Peach'],2:['#f0906f','Coral'],3:['#79cfc0','Teal'],4:['#a8e6cf','Aqua'],5:['#ffd9e8','Shell'],6:['#f6b3c6','Blush'],7:['#6e5a79','Plum']};
+{ const g = make();
+  disc(g,35.5,21,14,2);                                                      // hair, behind everything
+  seg(g,23,26,20,49,10,2); disc(g,20,50,5,2);                                // long side fall
+  ell(g,35.5,31,13,12,2);
+  disc(g,35.5,23,11,1);                                                      // face
+  shade(g,2,[1], l => ell(l,35.5,13,11,6,1));                                // bangs
+  ell(g,35.5,41,9.5,11,1);                                                   // torso
+  edged(g,1, l => { seg(l,27,36,25,45,5,1); disc(l,25,46,3,1); });           // arm hanging at her side
+  taperFn(g, [[35.5,46],[35,51],[35.5,56]], u => 20-u*8, 3);                 // tail
+  shade(g,4,[3], l => { for (let r=46;r<57;r+=4)                             // rows of scales
+    for (let c=20;c<40;c+=5) disc(l, c + (Math.floor(r/4)%2 ? 2.5 : 0), r, 1.8, 1); });
+  seg(g,35.5,57,19,63,10,3);                                                 // broad fluke lobe
+  disc(g,31,38,3.4,5);                                                       // shell top
+  eye(g,30,24,3.2,5);
+  blush(g,25,29,3.2,6);
+  curve(g, bez([32,30],[35.5,33],[39,30]), 1.8, 7);                          // smile
+  mirror(g);
+  outline(g,7);
+  OUT.mermaid = g; }
+
+/* ================= CALF ================= */
+P.calf = {1:['#fdf6fa','White'],2:['#b0835a','Cocoa'],3:['#f9b6cf','Pink'],4:['#ffd98a','Butter'],6:['#f6b3c6','Blush'],7:['#6e5a79','Plum']};
+{ const g = make();
+  ell(g,14,21,6,4.5,1);                                                      // floppy ear, behind the head
+  disc(g,27,9,3.4,4);                                                        // horn bud
+  sq(g,35.5,51,19,17,2.6,1);                                                 // body
+  sq(g,35.5,25,16.5,13.5,2.8,1);                                            // blocky calf head
+  shade(g,3,[1], l => ell(l,13,21,3.6,2.4,1));                               // inner ear
+  shade(g,3,[1], l => sq(l,35.5,33,10.5,6,3,1));                             // big soft muzzle
+  seg(g,24,40,47,40,5,2);                                                    // collar
+  edged(g,4, l => disc(l,35.5,47,4.2,1));                                    // bell
+  px(g,32,32,7); px(g,33,32,7);                                              // nostril
+  blush(g,22,30,3.2,6);
+  curve(g, bez([32,36],[35.5,38],[39,36]), 1.6, 7);                          // mouth
+  edged(g,2, l => ell(l,25,67,6,3.4,1));                                     // hoof
+  mirror(g);
+  rect(g,34,49,37,50,7);                                                     // bell slot
+  // cows are lopsided: patches go on after mirroring, then the eyes on top
+  ell(g,27,21,7.5,6.5,2); ell(g,23,56,7.5,6,2); ell(g,49,49,5.5,4.5,2);
+  eye(g,27,22,3.2,1); eye(g,44,22,3.2,1);
+  outline(g,7);
+  OUT.calf = g; }
+
+const order = ['narwhal','sloth','turtle','axolotl','capybara','manatee','beluga','dolphin','jellyfish',
+               'foal','mermaid','calf'];
 const names = {narwhal:'Narwhal', sloth:'Sloth', turtle:'Turtle', axolotl:'Axolotl', capybara:'Capybara',
-               manatee:'Manatee', beluga:'Beluga', dolphin:'Dolphin', jellyfish:'Jellyfish'};
+               manatee:'Manatee', beluga:'Beluga', dolphin:'Dolphin', jellyfish:'Jellyfish',
+               foal:'Baby Horse', mermaid:'Mermaid', calf:'Baby Cow'};
 
 module.exports = { order, names, P, OUT, W, H };

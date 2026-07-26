@@ -2,12 +2,12 @@
 
 A tiny, adorable **paint-by-numbers game for little artists**, made for playing on a
 tablet in the browser. Pick a cute pixel character, tap a color, and fill in the
-matching numbers to reveal it. Comes with **seventeen candy-pastel characters**:
+matching numbers to reveal it. Comes with **twenty candy-pastel characters**:
 
 - **Eight starters** at 36×36 — 🐱🐶🐰🐻🐥🦊🐸🐧 — around 600–750 squares each.
-- **Nine big ones** at 72×72 — 🦄🦥🐢🩷🐹🌿🤍🐬🎐 narwhal, sloth, turtle, axolotl,
-  capybara, manatee, beluga, dolphin and jellyfish — four times the pixels, about
-  1,900–2,700 squares each. Pinch to zoom in on these (or tap 🔍).
+- **Twelve big ones** at 72×72 — narwhal, sloth, turtle, axolotl, capybara, manatee,
+  beluga, dolphin, jellyfish, baby horse, mermaid and baby cow — four times the pixels,
+  about 1,900–2,700 squares each. Pinch to zoom in on these (or tap 🔍).
 
 Built as a gift for my daughter after one too many junky app-store games — so it's
 **fully open source**, ad-free, tracker-free, and works completely offline.
@@ -15,7 +15,7 @@ Built as a gift for my daughter after one too many junky app-store games — so 
 **▶ Play it here:** https://maximstark.github.io/paint-by-numbers/
 
 <p align="center">
-  <img src="screenshot.png" alt="All seventeen paintable pixel characters: kitty, puppy, bunny, bear, chick, fox, frog, penguin, narwhal, sloth, turtle, axolotl, capybara, manatee, beluga, dolphin and jellyfish" width="760">
+  <img src="screenshot.png" alt="All twenty paintable pixel characters: kitty, puppy, bunny, bear, chick, fox, frog, penguin, narwhal, sloth, turtle, axolotl, capybara, manatee, beluga, dolphin, jellyfish, baby horse, mermaid and baby cow" width="760">
 </p>
 
 ## How to play

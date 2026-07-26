@@ -1,7 +1,7 @@
 /* Paint by Numbers — service worker: works offline, stays fresh when online.
    Bump CACHE whenever the artwork or app files change; the old cache is dropped
    on activate and everything is re-primed. */
-const CACHE = 'pbn-v3';
+const CACHE = 'pbn-v4';
 const ASSETS = [
   './', './index.html', './characters.js', './manifest.webmanifest', './privacy.html',
   './icons/icon-192.png', './icons/icon-512.png',
